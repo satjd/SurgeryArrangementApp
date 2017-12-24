@@ -1,26 +1,41 @@
 <template>
   <div class="dashboard-container">
     <div style="margin-top: 20px">
-      <el-button size="mini" @click='appendClick'>添加</el-button>
+      
     </div>
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="月排班" name="first"><info-list :tableData="tableDataMonth" @deleteRow="deleteRow"></info-list></el-tab-pane>
-      <el-tab-pane label="周排班" name="second"><info-list :tableData="tableDataWeek" @deleteRow="deleteRow"></info-list></el-tab-pane>
-      <el-tab-pane label="日排班" name="third"><info-list :tableData="tableDataDay" @deleteRow="deleteRow"></info-list></el-tab-pane>
+      <el-tab-pane label="月排班" name="first">
+        <el-button type="success" icon="el-icon-circle-plus" @click="appendClick('month')">添加一个新的月排班（夜班）</el-button>
+        <info-list-month :tableData="tableDataMonth" @deleteRow="deleteRow"></info-list-month>
+      </el-tab-pane>
+      <el-tab-pane label="周排班" name="second">
+        <el-button type="success" icon="el-icon-circle-plus" @click="appendClick('week')">添加一个新的周排班（白班）</el-button>
+        <info-list-week :tableData="tableDataWeek"></info-list-week>
+      </el-tab-pane>
+      <el-tab-pane label="日排班" name="third">
+        <info-list-surgery :tableData="tableDataSurgery"></info-list-surgery>
+      </el-tab-pane>
     </el-tabs>
-    <info-select :isVisible="infoSelectVisible" @confirmButtonClicked="dialogConfirm" @cancelButtonClicked="dialogCancel"></info-select>
+    <info-select-month :isVisible="infoSelectVisible == 'month'" @confirmButtonClicked="dialogConfirm" @cancelButtonClicked="dialogCancel"></info-select-month>
+    <info-select-week :isVisible="infoSelectVisible == 'week'" @confirmButtonClicked="dialogConfirm" @cancelButtonClicked="dialogCancel"></info-select-week>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import InfoList from '@/components/InfoList'
-import InfoSelect from '@/components/InfoSelect'
+import InfoListMonth from '@/components/InfoListMonth'
+import InfoListWeek from '@/components/InfoListWeek'
+import InfoListSurgery from '@/components/InfoListSurgery'
+import InfoSelectMonth from '@/components/InfoSelectMonth'
+import InfoSelectWeek from '@/components/InfoSelectWeek'
 
 export default {
   components: {
-    InfoList,
-    InfoSelect
+    InfoListMonth,
+    InfoListWeek,
+    InfoListSurgery,
+    InfoSelectMonth,
+    InfoSelectWeek
   },
   name: 'dashboard',
   computed: {
@@ -31,31 +46,81 @@ export default {
   },
   data() {
     return {
-      activeName: 'first',
+      activeName: 'second',
       infoSelectVisible: false,
       tableDataMonth: [{
         date: '2017-12-21',
-        name: '夜班护士1',
-        exp: 'high',
-        status: 'normal'
+        night: [
+          {
+            name: '夜班护士1  鼠标移到上面可以看到护士资历',
+            exp: 'high',
+            status: 'normal'
+          }
+        ],
+        nightStandby: [
+          {
+            name: '候补护士1',
+            exp: 'mid',
+            status: 'pregnant'
+          }
+        ]
       },
       {
         date: '2017-12-22',
-        name: '夜班护士2',
-        exp: 'mid',
-        status: 'pregnant'
+        night: [
+          {
+            name: '夜班护士1',
+            exp: 'high',
+            status: 'normal'
+          }
+        ],
+        nightStandby: [
+          {
+            name: '候补护士1',
+            exp: 'mid',
+            status: 'pregnant'
+          }
+        ]
+      }
+      ],
+      tableDataWeek: [{
+        name: '白班护士1',
+        arrangements: [
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() }
+
+        ]
       },
       {
-        date: '2017-12-23',
-        name: '护士3',
-        exp: 'low',
-        status: 'agent'
-      }],
-      tableDataWeek: [{
-        date: '2017-12-21',
-        name: '周护士1',
-        exp: 'high',
-        status: 'normal'
+        name: '白班护士2',
+        arrangements: [
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() }
+
+        ]
+      },
+      {
+        name: '白班护士3',
+        arrangements: [
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() },
+          { start: new Date().getHours(), end: new Date().getHours() }
+
+        ]
       }],
       tableDataDay: [{
         date: '2017-12-21',
@@ -69,13 +134,8 @@ export default {
     handleClick(tab, event) {
       console.log(tab, event)
     },
-    appendClick() {
-      // this.tableData.push({
-      //   date: '2016-05-03',
-      //   name: '王小虎',
-      //   address: '上海市普陀区金沙江路 1516 弄'
-      // })
-      this.infoSelectVisible = true
+    appendClick(option) {
+      this.infoSelectVisible = option
     },
     deleteClick() {
       this.tableData.pop()
