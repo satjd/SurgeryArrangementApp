@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      activeName: 'second',
+      activeName: 'first',
       infoSelectVisible: false,
       tableDataMonth: [{
         date: '2017-12-21',
