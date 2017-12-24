@@ -23,15 +23,35 @@ export const constantRouterMap = [
   { path: '/404', component: _import('404'), hidden: true },
 
   {
-    path: '/',
+    path: '',
     component: Layout,
     redirect: '/dashboard',
     name: 'Dashboard',
-    hidden: true,
     children: [{
       path: 'dashboard',
+      meta: { title: '手动排班', icon: 'example' },
       component: _import('dashboard/index')
     }]
+  },
+  {
+    path: '/autoarrange',
+    component: Layout,
+    redirct: '/autoarrange/results',
+    name: 'AutoArrange',
+    meta: { title: '自动排班', icon: 'example' },
+    children: [{
+      path: 'results',
+      name: 'Results',
+      meta: { title: '排班结果', icon: 'example' },
+      component: _import('arrangeresults/index')
+    },
+    {
+      path: 'rules',
+      name: 'Rules',
+      meta: { title: '约束', icon: 'example' },
+      component: _import('rules/index')
+    }
+    ]
   },
 
   {
@@ -39,35 +59,35 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/example/table',
     name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    meta: { title: '约束', icon: 'example' },
     children: [
       {
         path: 'table',
         name: 'Table',
         component: _import('table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        meta: { title: '表格', icon: 'table' }
       },
       {
         path: 'tree',
         name: 'Tree',
         component: _import('tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        meta: { title: '树状', icon: 'tree' }
       }
     ]
   },
 
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: _import('form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
+  // {
+  //   path: '/form',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       name: 'Form',
+  //       component: _import('form/index'),
+  //       meta: { title: 'Form', icon: 'form' }
+  //     }
+  //   ]
+  // },
 
   { path: '*', redirect: '/404', hidden: true }
 ]

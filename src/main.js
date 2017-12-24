@@ -11,13 +11,18 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import router from './router'
 import store from './store'
+import FullCalendar from 'vue-full-calendar'
 
 import '@/icons' // icon
 import '@/permission' // permission control
 
 Vue.use(ElementUI, { locale })
+Vue.use(FullCalendar)
 
 Vue.config.productionTip = false
+
+window.jQuery = window.$ = require('jquery')
+require('webpack-jquery-ui')
 
 new Vue({
   el: '#app',
