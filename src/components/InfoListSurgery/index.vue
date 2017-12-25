@@ -62,6 +62,7 @@
             v-if="scope.row.edit"
             size="mini"
             type="warning"
+            @click="selectDialogVisible = true"
             >...</el-button>
         </template>
       </el-table-column>
@@ -74,6 +75,7 @@
             v-if="scope.row.edit"
             size="mini"
             type="warning"
+            @click="selectDialogVisible = true"
             >...</el-button>
         </template>
       </el-table-column>
@@ -89,14 +91,18 @@
         </template>
       </el-table-column>
     </el-table>
+    <staff-select :isVisible="selectDialogVisible"></staff-select>
   </div>
 </template>
 
 <script>
 
+import StaffSelect from '@/components/StaffSelect'
+
 export default {
   name: 'info-list-surgery',
   components: {
+    StaffSelect
   },
   props: {
   },
@@ -140,7 +146,8 @@ export default {
   data() {
     return {
       infoSelectVisible: false,
-      tableData: []
+      tableData: [],
+      selectDialogVisible: false
     }
   }
 
