@@ -7,49 +7,74 @@
         label="手术日期"
         >
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.date }}</span>
+          <el-date-picker
+            v-if="scope.row.edit"
+            v-model="scope.row.surgeryDate"
+            type="date"
+            placeholder="选择日期">
+          </el-date-picker>
+          <span v-else>{{ scope.row.surgeryDate }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="手术时间"
         >
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.time }}</span>
+          <el-time-picker
+            v-if="scope.row.edit"
+            v-model="scope.row.surgeryTime"
+            :picker-options="{
+            }"
+            placeholder="任意时间点">
+          </el-time-picker>
+          <span v-else>{{ scope.row.surgeryTime }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="手术间"
         >
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.time }}</span>
+          <el-input v-if="scope.row.edit" v-model="scope.row.surgeryRoom" placeholder="手术间"></el-input>
+          <span v-else>{{ scope.row.surgeryRoom }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="台次"
         >
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.time }}</span>
+          <el-input v-if="scope.row.edit" v-model="scope.row.surgeryOrder" placeholder="台次"></el-input>
+          <span v-else>{{ scope.row.surgeryOrder }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="手术名称"
         >
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.time }}</span>
+          <span>{{ scope.row.surgeryName }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="器械护士"
         >
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.time }}</span>
+          <span>{{ scope.row.instNurse }}</span>
+          <el-button
+            v-if="scope.row.edit"
+            size="mini"
+            type="warning"
+            >...</el-button>
         </template>
       </el-table-column>
       <el-table-column
         label="巡回护士"
         >
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.time }}</span>
+          <span>{{ scope.row.rovNurse }}</span>
+          <el-button
+            v-if="scope.row.edit"
+            size="mini"
+            type="warning"
+            >...</el-button>
         </template>
       </el-table-column>
       <el-table-column label="操作">
@@ -74,17 +99,32 @@ export default {
   components: {
   },
   props: {
-    tableData: {
-      type: Array,
-      default: function() {
-        return []
-      }
-    }
+  },
+  created() {
+    this.getSurgeryList()
   },
   methods: {
+    getSurgeryList() {
+      const responseList = [
+        {
+          surgeryName: '双侧甲状腺全切术',
+          surgeryDate: '',
+          surgeryTime: '',
+          surgeryRoom: '1',
+          surgeryOrder: '1',
+          instNurse: '器械护士1',
+          rovNurse: '巡回护士1'
+        }
+      ]
+      this.tableData = responseList.map(v => {
+        this.$set(v, 'edit', false)
+        return v
+      })
+    },
     handleEdit(index, row) {
       console.log(index, row)
       // this.$emit('editRow', index, this.tableData)
+      row.edit = !row.edit
     },
     handleDelete(index, row) {
       console.log(index, this.tableData)
@@ -99,7 +139,8 @@ export default {
   },
   data() {
     return {
-      infoSelectVisible: false
+      infoSelectVisible: false,
+      tableData: []
     }
   }
 

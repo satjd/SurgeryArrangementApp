@@ -13,7 +13,7 @@
         <info-list-week :tableData="tableDataWeek"></info-list-week>
       </el-tab-pane>
       <el-tab-pane label="日排班" name="third">
-        <info-list-surgery :tableData="tableDataSurgery"></info-list-surgery>
+        <info-list-surgery></info-list-surgery>
       </el-tab-pane>
     </el-tabs>
     <info-select-month :isVisible="infoSelectVisible == 'month'" @confirmButtonClicked="dialogConfirm" @cancelButtonClicked="dialogCancel"></info-select-month>
