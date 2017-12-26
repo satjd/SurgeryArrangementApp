@@ -83,7 +83,7 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            @click="handleEdit(scope.$index, scope.row)">{{scope.row.edit == false?'编辑':'确认'}}</el-button>
           <el-button
             size="mini"
             type="danger"

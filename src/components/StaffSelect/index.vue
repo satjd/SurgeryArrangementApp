@@ -87,6 +87,27 @@ export default {
           pregnant: true,
           vacation: false,
           exp: 'low'
+        },
+        {
+          name: '护士4',
+          age: 30,
+          pregnant: true,
+          vacation: false,
+          exp: 'low'
+        },
+        {
+          name: '护士5',
+          age: 30,
+          pregnant: true,
+          vacation: false,
+          exp: 'low'
+        },
+        {
+          name: '护士6',
+          age: 30,
+          pregnant: true,
+          vacation: false,
+          exp: 'low'
         }
       ]
     }
