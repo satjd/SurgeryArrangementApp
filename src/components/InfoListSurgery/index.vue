@@ -91,7 +91,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <staff-select :isVisible="selectDialogVisible"></staff-select>
+    <staff-select :isVisible="selectDialogVisible" @dialogClose="selectDialogVisible = false"></staff-select>
   </div>
 </template>
 

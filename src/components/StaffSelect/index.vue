@@ -5,14 +5,16 @@
   :show-close="false" 
   :close-on-click-modal="false" 
   :close-on-press-escape="false"
-  :visible.sync="isVisible" 
+  :visible.sync="isVisible"  
   >
   <el-form ref="form" :model="formData" label-width="80px">
     <el-table
       ref="multipleTable"
       :data="staffList"
       tooltip-effect="dark"
-      style="width: 100%">
+      style="width: 100%"
+      @selection-change="handleSelectionChange"
+      >
       <el-table-column
         type="selection"
         width="55">
@@ -62,10 +64,9 @@ export default {
   },
   methods: {
     closeDialog() {
-      this.$refs.dialog.$emit('update:visible', false)
+      this.$emit('dialogClose')
     },
     getStaffInfo() {
-      console.log('get')
       this.staffList = [
         {
           name: '护士1',
@@ -110,6 +111,10 @@ export default {
           exp: 'low'
         }
       ]
+    },
+    handleSelectionChange(val) {
+      console.log(this.formData.selectedStaffIndex)
+      this.formData.selectedStaffIndex = val
     }
   },
   data() {
