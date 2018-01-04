@@ -6,18 +6,18 @@
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="月排班" name="first">
         <el-button type="success" icon="el-icon-circle-plus" @click="appendClick('month')">添加一个新的月排班（夜班）</el-button>
-        <info-list-month :tableData="tableDataMonth" @deleteRow="deleteRow"></info-list-month>
+        <info-list-month ref="infoListMonth" @deleteRow="deleteRow"></info-list-month>
       </el-tab-pane>
       <el-tab-pane label="周排班" name="second">
         <el-button type="success" icon="el-icon-circle-plus" @click="appendClick('week')">添加一个新的周排班（白班）</el-button>
-        <info-list-week :tableData="tableDataWeek"></info-list-week>
+        <info-list-week ref="infoListWeek" :tableData="tableDataWeek"></info-list-week>
       </el-tab-pane>
       <el-tab-pane label="日排班" name="third">
         <info-list-surgery></info-list-surgery>
       </el-tab-pane>
     </el-tabs>
-    <info-select-month :isVisible="infoSelectVisible == 'month'" @confirmButtonClicked="dialogConfirm" @cancelButtonClicked="dialogCancel"></info-select-month>
-    <info-select-week :isVisible="infoSelectVisible == 'week'" @confirmButtonClicked="dialogConfirm" @cancelButtonClicked="dialogCancel"></info-select-week>
+    <info-select-month ref="infoSelectMonth" :isVisible="infoSelectVisible == 'month'" @confirm="dialogMonthConfirm" @cancel="dialogMonthCancel"></info-select-month>
+    <info-select-week ref="infoSelectWeek" :isVisible="infoSelectVisible == 'week'" @confirm="dialogWeekConfirm" @cancel="dialogWeekCancel"></info-select-week>
   </div>
 </template>
 
@@ -48,41 +48,6 @@ export default {
     return {
       activeName: 'first',
       infoSelectVisible: false,
-      tableDataMonth: [{
-        date: '2017-12-21',
-        night: [
-          {
-            name: '夜班护士1  鼠标移到上面可以看到护士资历',
-            exp: 'high',
-            status: 'normal'
-          }
-        ],
-        nightStandby: [
-          {
-            name: '候补护士1',
-            exp: 'mid',
-            status: 'pregnant'
-          }
-        ]
-      },
-      {
-        date: '2017-12-22',
-        night: [
-          {
-            name: '夜班护士1',
-            exp: 'high',
-            status: 'normal'
-          }
-        ],
-        nightStandby: [
-          {
-            name: '候补护士1',
-            exp: 'mid',
-            status: 'pregnant'
-          }
-        ]
-      }
-      ],
       tableDataWeek: [{
         name: '白班护士1',
         arrangements: [
@@ -121,12 +86,6 @@ export default {
           { start: new Date().getHours(), end: new Date().getHours() }
 
         ]
-      }],
-      tableDataDay: [{
-        date: '2017-12-21',
-        name: '手术护士1',
-        exp: 'high',
-        status: 'normal'
       }]
     }
   },
@@ -140,10 +99,18 @@ export default {
     deleteClick() {
       this.tableData.pop()
     },
-    dialogConfirm() {
+    dialogMonthConfirm(formData) {
+      this.$refs.infoListMonth.tableData.push(formData)
       this.infoSelectVisible = false
     },
-    dialogCancel() {
+    dialogMonthCancel() {
+      this.infoSelectVisible = false
+    },
+    dialogWeekConfirm(formData) {
+      this.$refs.infoListWeek.tableData.push(formData)
+      this.infoSelectVisible = false
+    },
+    dialogWeekCancel() {
       this.infoSelectVisible = false
     },
     deleteRow(data) {

@@ -21,12 +21,24 @@
               </el-date-picker>
             </el-form-item>
             <el-form-item v-if="curStep >= 2" label="夜班护士">
-              <el-transfer  v-model="formData.night" :data="nurseList" filterable filter-placeholder="搜索护士"
-              :titles="['备选护士', '已选择']" :button-texts="['选择护士', '退到备选']"></el-transfer>
+              <el-button
+                type="warning"
+                @click="selectDialogVisible = true"
+                >...</el-button>
+              <staff-select :isVisible="selectDialogVisible" ref="staffSelectNight" 
+                @dialogClose="selectDialogVisible = false" :selectableFilter="staffSelectNightFilter"
+                @submit="staffSelectNightSubmitHandler"></staff-select>
+              <el-tag v-for="staff in formData.night" :key="staff.id">{{staff.name}}</el-tag>
             </el-form-item>
             <el-form-item v-if="curStep >= 3" label="候补护士">
-              <el-transfer v-model="formData.nightStandby" :data="nurseList"  filterable filter-placeholder="搜索护士"
-              :titles="['备选护士', '已选择']" :button-texts="['选择护士', '退回到备选']"></el-transfer>
+              <el-button
+                type="warning"
+                @click="selectDialogVisible = true"
+                >...</el-button>
+              <staff-select :isVisible="selectDialogVisible" ref="staffSelectNightStandby" 
+                @dialogClose="selectDialogVisible = false" :selectableFilter="staffSelectNightStandbyFilter"
+                @submit="staffSelectNightStandbySubmitHandler"></staff-select>
+              <el-tag v-for="staff in formData.nightStandby" :key="staff.id">{{staff.name}}</el-tag>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -38,8 +50,15 @@
 </template>
 
 <script>
+import StaffSelect from '@/components/StaffSelect'
+
+const MAX_STUFF_AMOUNT = 3
+
 export default {
   name: 'info-select-month',
+  components: {
+    StaffSelect
+  },
   props: {
     isVisible: {
       type: Boolean,
@@ -50,34 +69,49 @@ export default {
       default: function() {
         return []
       }
-    },
-    formData: {
-      type: Object,
-      default: function() {
-        return {
-          date: '',
-          night: [],
-          nightStandby: []
-        }
-      }
     }
   },
   methods: {
     confirmButtonClicked: function() {
       if (this.curStep === 3) {
-        this.$emit('confirmButtonClicked')
+        this.$emit('confirm', this.formData)
       } else this.curStep++
     },
     cancelButtonClicked: function() {
-      this.$emit('cancelButtonClicked')
+      this.$emit('cancel')
     },
     select: function() {
       this.selecting = true
+    },
+    staffSelectNightFilter: function(row, index) {
+      // TODO: ie support
+      if (this.$refs.staffSelectNight.formData.selectedStaffIndex.includes(row)) return true
+      return this.$refs.staffSelectNight.formData.selectedStaffIndex.length < MAX_STUFF_AMOUNT
+    },
+    staffSelectNightStandbyFilter: function(row, index) {
+      // TODO: ie support
+      if (this.$refs.staffSelectNightStandby.formData.selectedStaffIndex.includes(row)) return true
+      return this.$refs.staffSelectNightStandby.formData.selectedStaffIndex.length < MAX_STUFF_AMOUNT
+    },
+    staffSelectNightSubmitHandler: function() {
+      this.formData.night = this.$refs.staffSelectNight.formData.selectedStaffIndex
+      this.selectDialogVisible = false
+    },
+    staffSelectNightStandbySubmitHandler: function() {
+      this.formData.nightStandby = this.$refs.staffSelectNightStandby.formData.selectedStaffIndex
+      this.selectDialogVisible = false
     }
+
   },
   data() {
     return {
-      curStep: 1
+      curStep: 1,
+      selectDialogVisible: false,
+      formData: {
+        date: '',
+        night: [],
+        nightStandby: []
+      }
     }
   }
 }

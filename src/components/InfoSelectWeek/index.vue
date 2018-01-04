@@ -82,11 +82,11 @@ export default {
   methods: {
     confirmButtonClicked: function() {
       if (this.curStep === 3) {
-        this.$emit('confirmButtonClicked')
+        this.$emit('confirm')
       } else this.curStep++
     },
     cancelButtonClicked: function() {
-      this.$emit('cancelButtonClicked')
+      this.$emit('cancel')
     },
     select: function() {
       this.selecting = true

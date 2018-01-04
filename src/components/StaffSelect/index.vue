@@ -5,7 +5,8 @@
   :show-close="false" 
   :close-on-click-modal="false" 
   :close-on-press-escape="false"
-  :visible.sync="isVisible"  
+  :visible.sync="isVisible" 
+  append-to-body 
   >
   <el-form ref="form" :model="formData" label-width="80px">
     <el-table
@@ -17,7 +18,8 @@
       >
       <el-table-column
         type="selection"
-        width="55">
+        width="55"
+        :selectable="selectableFilter">
       </el-table-column>
       <el-table-column
         prop="name"
@@ -50,7 +52,7 @@
   </el-form>
   <div slot="footer" class="dialog-footer">
     <el-button @click="closeDialog">取 消</el-button>
-    <el-button type="primary">确 定</el-button>
+    <el-button type="primary" @click="onSubmit">确 定</el-button>
   </div>
 </el-dialog>
 </template>
@@ -60,11 +62,18 @@ export default {
   name: 'staff-select',
   components: {},
   props: {
-    isVisible: false
+    isVisible: false,
+    selectableFilter: {
+      type: Function,
+      default: function(row, index) { return true }
+    }
   },
   methods: {
     closeDialog() {
       this.$emit('dialogClose')
+    },
+    onSubmit() {
+      this.$emit('submit')
     },
     getStaffInfo() {
       this.staffList = [

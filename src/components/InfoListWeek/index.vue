@@ -1,6 +1,6 @@
 <template>
   <div>
-    <info-select-week :isVisible="infoSelectVisible" @confirmButtonClicked="dialogConfirm" @cancelButtonClicked="dialogCancel"></info-select-week>
+    <info-select-week :isVisible="infoSelectVisible" @confirm="dialogConfirm" @cancel="dialogCancel"></info-select-week>
     <el-table
       :data="tableData"
       style="width: 100%">
