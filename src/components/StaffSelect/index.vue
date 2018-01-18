@@ -1,6 +1,6 @@
 <template>
 <el-dialog ref="dialog" title="选择护士" 
-  @open="getStaffInfo()"
+  @open="getStaffList()"
   :fullscreen="false" 
   :show-close="false" 
   :close-on-click-modal="false" 
@@ -10,12 +10,13 @@
   >
   <el-form ref="form" :model="formData" label-width="80px">
     <el-table
-      ref="multipleTable"
+      ref="staffList"
       :data="staffList"
       tooltip-effect="dark"
       style="width: 100%"
       @selection-change="handleSelectionChange"
-      >
+      v-loading.body="listLoading" 
+      element-loading-text="Loading">
       <el-table-column
         type="selection"
         width="55"
@@ -58,6 +59,8 @@
 </template>
 
 <script>
+import { getStaff } from '@/api/staff'
+
 export default {
   name: 'staff-select',
   components: {},
@@ -75,51 +78,12 @@ export default {
     onSubmit() {
       this.$emit('submit')
     },
-    getStaffInfo() {
-      this.staffList = [
-        {
-          name: '护士1',
-          age: 27,
-          pregnant: false,
-          vacation: false,
-          exp: 'high'
-        },
-        {
-          name: '护士2',
-          age: 21,
-          pregnant: false,
-          vacation: true,
-          exp: 'mid'
-        },
-        {
-          name: '护士3',
-          age: 30,
-          pregnant: true,
-          vacation: false,
-          exp: 'low'
-        },
-        {
-          name: '护士4',
-          age: 30,
-          pregnant: true,
-          vacation: false,
-          exp: 'low'
-        },
-        {
-          name: '护士5',
-          age: 30,
-          pregnant: true,
-          vacation: false,
-          exp: 'low'
-        },
-        {
-          name: '护士6',
-          age: 30,
-          pregnant: true,
-          vacation: false,
-          exp: 'low'
-        }
-      ]
+    getStaffList() {
+      this.listLoading = true
+      getStaff().then(response => {
+        this.staffList = response.data.items
+        this.listLoading = false
+      })
     },
     handleSelectionChange(val) {
       console.log(this.formData.selectedStaffIndex)
@@ -128,6 +92,7 @@ export default {
   },
   data() {
     return {
+      listLoading: false,
       staffList: [],
       formData: {
         selectedStaffIndex: []

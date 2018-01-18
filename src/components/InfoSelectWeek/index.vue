@@ -14,13 +14,14 @@
           </el-steps>
           <el-form ref="form" :model="formData" label-width="80px">
             <el-form-item v-if="curStep >= 1" label="护士">
-              <el-select v-model="formData.name" filterable placeholder="请选择(可以按姓名搜索护士)">
-                <el-option
-                  v-for="item in nurseList"
-                  :key="item.id"
-                  :value="item.name">
-                </el-option>
-              </el-select>
+              <el-button
+                type="warning"
+                @click="selectDialogVisible = true"
+                >...</el-button>
+              <staff-select :isVisible="selectDialogVisible" ref="staffSelectWeek" 
+                @dialogClose="selectDialogVisible = false" :selectableFilter="staffSelectWeekFilter"
+                @submit="staffSelectWeekSubmitHandler"></staff-select>
+              <el-tag v-for="staff in formData.staff" :key="staff.id">{{staff.name}}</el-tag>
             </el-form-item>
             <el-form-item v-if="curStep >= 2" label="日期">
               <el-date-picker
@@ -54,29 +55,19 @@
 </template>
 
 <script>
+import StaffSelect from '@/components/StaffSelect'
+
+const MAX_STAFF_AMOUNT = 1
+
 export default {
   name: 'info-select-week',
+  components: {
+    StaffSelect
+  },
   props: {
     isVisible: {
       type: Boolean,
       default: false
-    },
-    nurseList: {
-      type: Array,
-      default: function() {
-        return []
-      }
-    },
-    formData: {
-      type: Object,
-      default: function() {
-        return {
-          name: '',
-          date: '',
-          start: '',
-          end: ''
-        }
-      }
     }
   },
   methods: {
@@ -90,11 +81,26 @@ export default {
     },
     select: function() {
       this.selecting = true
+    },
+    staffSelectWeekFilter: function(row, index) {
+      // TODO: ie support
+      if (this.$refs.staffSelectWeek.formData.selectedStaffIndex.includes(row)) return true
+      return this.$refs.staffSelectWeek.formData.selectedStaffIndex.length < MAX_STAFF_AMOUNT
+    },
+    staffSelectWeekSubmitHandler: function() {
+      this.formData.staff = this.$refs.staffSelectWeek.formData.selectedStaffIndex
+      this.selectDialogVisible = false
     }
+
   },
   data() {
     return {
-      curStep: 1
+      curStep: 1,
+      selectDialogVisible: false,
+      formData: {
+        staff: [],
+        weekArrangements: []
+      }
     }
   }
 }

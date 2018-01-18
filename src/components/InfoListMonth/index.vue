@@ -1,9 +1,10 @@
 <template>
   <div>
-    
     <el-table
       :data="tableData"
-      style="width: 100%">
+      style="width: 100%"
+      v-loading.body="listLoading" 
+      element-loading-text="Loading">
       <el-table-column
         label="班次"
         width="180">
@@ -56,6 +57,7 @@
 
 <script>
 import InfoSelectMonth from '@/components/InfoSelectMonth'
+import { getMonthList } from '@/api/table'
 
 export default {
   name: 'info-list-month',
@@ -69,7 +71,7 @@ export default {
     }
   },
   created: function() {
-    this.tableData = this.getInfoListMonth()
+    this.getInfoListMonth()
   },
   methods: {
     handleEdit(index, row) {
@@ -90,48 +92,21 @@ export default {
       this.infoSelectVisible = false
     },
     getInfoListMonth() {
-      return [
-        {
-          date: '2017-12-21',
-          night: [
-            {
-              name: '夜班护士1  鼠标移到上面可以看到护士资历',
-              exp: 'high',
-              status: 'normal'
-            }
-          ],
-          nightStandby: [
-            {
-              name: '候补护士1',
-              exp: 'mid',
-              status: 'pregnant'
-            }
-          ]
-        },
-        {
-          date: '2017-12-22',
-          night: [
-            {
-              name: '夜班护士1',
-              exp: 'high',
-              status: 'normal'
-            }
-          ],
-          nightStandby: [
-            {
-              name: '候补护士1',
-              exp: 'mid',
-              status: 'pregnant'
-            }
-          ]
-        }
-      ]
+      this.listLoading = true
+      getMonthList().then(response => {
+        this.tableData = response.data.items.map(v => {
+          this.$set(v, 'edit', false)
+          return v
+        })
+        this.listLoading = false
+      })
     }
   },
   data() {
     return {
       infoSelectVisible: false,
       editIndex: 0,
+      listLoading: false,
       tableData: []
     }
   }

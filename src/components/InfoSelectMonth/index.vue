@@ -23,20 +23,20 @@
             <el-form-item v-if="curStep >= 2" label="夜班护士">
               <el-button
                 type="warning"
-                @click="selectDialogVisible = true"
+                @click="selectDialogNightVisible = true"
                 >...</el-button>
-              <staff-select :isVisible="selectDialogVisible" ref="staffSelectNight" 
-                @dialogClose="selectDialogVisible = false" :selectableFilter="staffSelectNightFilter"
+              <staff-select :isVisible="selectDialogNightVisible" ref="staffSelectNight" 
+                @dialogClose="selectDialogNightVisible = false" :selectableFilter="staffSelectNightFilter"
                 @submit="staffSelectNightSubmitHandler"></staff-select>
               <el-tag v-for="staff in formData.night" :key="staff.id">{{staff.name}}</el-tag>
             </el-form-item>
             <el-form-item v-if="curStep >= 3" label="候补护士">
               <el-button
                 type="warning"
-                @click="selectDialogVisible = true"
+                @click="selectDialogNightStandbyVisible = true"
                 >...</el-button>
-              <staff-select :isVisible="selectDialogVisible" ref="staffSelectNightStandby" 
-                @dialogClose="selectDialogVisible = false" :selectableFilter="staffSelectNightStandbyFilter"
+              <staff-select :isVisible="selectDialogNightStandbyVisible" ref="staffSelectNightStandby" 
+                @dialogClose="selectDialogNightStandbyVisible = false" :selectableFilter="staffSelectNightStandbyFilter"
                 @submit="staffSelectNightStandbySubmitHandler"></staff-select>
               <el-tag v-for="staff in formData.nightStandby" :key="staff.id">{{staff.name}}</el-tag>
             </el-form-item>
@@ -52,7 +52,7 @@
 <script>
 import StaffSelect from '@/components/StaffSelect'
 
-const MAX_STUFF_AMOUNT = 3
+const MAX_STAFF_AMOUNT = 3
 
 export default {
   name: 'info-select-month',
@@ -86,27 +86,28 @@ export default {
     staffSelectNightFilter: function(row, index) {
       // TODO: ie support
       if (this.$refs.staffSelectNight.formData.selectedStaffIndex.includes(row)) return true
-      return this.$refs.staffSelectNight.formData.selectedStaffIndex.length < MAX_STUFF_AMOUNT
+      return this.$refs.staffSelectNight.formData.selectedStaffIndex.length < MAX_STAFF_AMOUNT
     },
     staffSelectNightStandbyFilter: function(row, index) {
       // TODO: ie support
       if (this.$refs.staffSelectNightStandby.formData.selectedStaffIndex.includes(row)) return true
-      return this.$refs.staffSelectNightStandby.formData.selectedStaffIndex.length < MAX_STUFF_AMOUNT
+      return this.$refs.staffSelectNightStandby.formData.selectedStaffIndex.length < MAX_STAFF_AMOUNT
     },
     staffSelectNightSubmitHandler: function() {
       this.formData.night = this.$refs.staffSelectNight.formData.selectedStaffIndex
-      this.selectDialogVisible = false
+      this.selectDialogNightVisible = false
     },
     staffSelectNightStandbySubmitHandler: function() {
       this.formData.nightStandby = this.$refs.staffSelectNightStandby.formData.selectedStaffIndex
-      this.selectDialogVisible = false
+      this.selectDialogNightStandbyVisible = false
     }
 
   },
   data() {
     return {
       curStep: 1,
-      selectDialogVisible: false,
+      selectDialogNightVisible: false,
+      selectDialogNightStandbyVisible: false,
       formData: {
         date: '',
         night: [],

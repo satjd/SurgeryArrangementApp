@@ -10,7 +10,7 @@
       </el-tab-pane>
       <el-tab-pane label="周排班" name="second">
         <el-button type="success" icon="el-icon-circle-plus" @click="appendClick('week')">添加一个新的周排班（白班）</el-button>
-        <info-list-week ref="infoListWeek" :tableData="tableDataWeek"></info-list-week>
+        <info-list-week ref="infoListWeek"></info-list-week>
       </el-tab-pane>
       <el-tab-pane label="日排班" name="third">
         <info-list-surgery></info-list-surgery>
@@ -47,46 +47,7 @@ export default {
   data() {
     return {
       activeName: 'first',
-      infoSelectVisible: false,
-      tableDataWeek: [{
-        name: '白班护士1',
-        arrangements: [
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() }
-
-        ]
-      },
-      {
-        name: '白班护士2',
-        arrangements: [
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() }
-
-        ]
-      },
-      {
-        name: '白班护士3',
-        arrangements: [
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() },
-          { start: new Date().getHours(), end: new Date().getHours() }
-
-        ]
-      }]
+      infoSelectVisible: false
     }
   },
   methods: {
