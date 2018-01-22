@@ -3,6 +3,7 @@ import Vue from 'vue'
 import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
+import DataTables from 'vue-data-tables'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/en'
 
@@ -18,6 +19,7 @@ import '@/permission' // permission control
 
 Vue.use(ElementUI, { locale })
 Vue.use(FullCalendar)
+Vue.use(DataTables)
 
 Vue.config.productionTip = false
 

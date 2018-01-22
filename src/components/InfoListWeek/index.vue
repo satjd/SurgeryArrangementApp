@@ -27,8 +27,10 @@
         <template slot-scope="scope">
           <div v-if="scope.row.edit">
             <el-checkbox v-model="scope.row.arrangements[index-1].idle">空闲</el-checkbox>
-            <el-input-number size="mini" v-model="scope.row.arrangements[index-1].start" :min="0" :max="23" :disabled="scope.row.arrangements[index-1].idle"></el-input-number>
-            <el-input-number size="mini" v-model="scope.row.arrangements[index-1].end"   :min="0" :max="23" :disabled="scope.row.arrangements[index-1].idle"></el-input-number>
+            <div>
+              <el-input-number size="mini" v-model="scope.row.arrangements[index-1].start" :min="0" :max="23" :disabled="scope.row.arrangements[index-1].idle"></el-input-number>
+              <el-input-number size="mini" v-model="scope.row.arrangements[index-1].end"   :min="0" :max="23" :disabled="scope.row.arrangements[index-1].idle"></el-input-number>
+            </div>
           </div>
           <div v-else>
             <i class="el-icon-time"></i>

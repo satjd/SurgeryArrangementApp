@@ -2,7 +2,9 @@
   <div>
     <el-table
       :data="tableData"
-      style="width: 100%">
+      style="width: 100%"
+      v-loading.body="listLoading" 
+      element-loading-text="Loading">
       <el-table-column
         label="手术日期"
         >
@@ -83,6 +85,7 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
+            :disabled="!editAvilable"
             @click="handleEdit(scope.$index, scope.row)">{{scope.row.edit == false?'编辑':'确认'}}</el-button>
           <el-button
             size="mini"
@@ -98,6 +101,7 @@
 <script>
 
 import StaffSelect from '@/components/StaffSelect'
+import { getSurgeryList, updateSurgeryList } from '@/api/table'
 
 export default {
   name: 'info-list-surgery',
@@ -107,29 +111,47 @@ export default {
   props: {
   },
   created() {
-    this.getSurgeryList()
+    this.getInfoListSurgery()
   },
   methods: {
-    getSurgeryList() {
-      const responseList = [
-        {
-          surgeryName: '双侧甲状腺全切术',
-          surgeryDate: '',
-          surgeryTime: '',
-          surgeryRoom: '1',
-          surgeryOrder: '1',
-          instNurse: '器械护士1',
-          rovNurse: '巡回护士1'
-        }
-      ]
-      this.tableData = responseList.map(v => {
-        this.$set(v, 'edit', false)
-        return v
+    getInfoListSurgery() {
+      this.listLoading = true
+      getSurgeryList().then(response => {
+        this.tableData = response.data.items.map(v => {
+          this.$set(v, 'edit', false)
+          return v
+        })
+        this.listLoading = false
       })
     },
     handleEdit(index, row) {
       console.log(index, row)
       // this.$emit('editRow', index, this.tableData)
+      if (row.edit === false) {
+        row.edit = !row.edit
+        return
+      }
+
+      this.editAvilable = false
+      updateSurgeryList({}, row).then(response => {
+        if (/* response.data.code === 40000*/true) {
+          this.$notify.error({
+            title: '更新失败',
+            message: response.data.msg
+          })
+          this.editAvilable = true
+          return
+        } else {
+          this.$notify({
+            title: '更新成功',
+            message: response.data.msg,
+            type: 'success',
+            duration: 2000
+          })
+          this.editAvilable = true
+          return
+        }
+      })
       row.edit = !row.edit
     },
     handleDelete(index, row) {
@@ -146,6 +168,8 @@ export default {
   data() {
     return {
       infoSelectVisible: false,
+      listLoading: false,
+      editAvilable: true,
       tableData: [],
       selectDialogVisible: false
     }

@@ -25,3 +25,22 @@ export function getWeekList(params) {
     params
   })
 }
+
+// Get surgery arrangements
+export function getSurgeryList(params) {
+  return request({
+    url: '/list/surgery',
+    method: 'get',
+    params
+  })
+}
+
+// Update surgery arrangement
+export function updateSurgeryList(params, data) {
+  return request({
+    url: '/list/surgery',
+    method: 'put',
+    params,
+    data
+  })
+}
