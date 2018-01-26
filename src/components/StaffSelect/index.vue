@@ -72,7 +72,7 @@ export default {
     staffFilter: {
       type: Function,
       default: function(staff) {
-        return staff.id
+        return staff.sid
       }
     },
     selectableFilter: {

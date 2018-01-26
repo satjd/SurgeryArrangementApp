@@ -6,7 +6,7 @@
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="月排班" name="first">
         <el-button type="success" icon="el-icon-circle-plus" @click="appendClick('month')">添加一个新的月排班（夜班）</el-button>
-        <info-list-month ref="infoListMonth" @deleteRow="deleteRow"></info-list-month>
+        <info-list-month ref="infoListMonth"></info-list-month>
       </el-tab-pane>
       <el-tab-pane label="周排班" name="second">
         <el-button type="success" icon="el-icon-circle-plus" @click="appendClick('week')">添加一个新的周排班（白班）</el-button>

@@ -56,28 +56,26 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="器械护士"
-        >
+        label="器械护士">
         <template slot-scope="scope">
-          <span>{{ scope.row.instNurse }}</span>
+          <span v-for="item in scope.row.instNurse" :key="item.id">{{ "("+item.name+")" }}</span>
           <el-button
             v-if="scope.row.edit"
             size="mini"
             type="warning"
-            @click="selectDialogVisible = true"
+            @click="handleStaffUpdate(scope.row.instNurse)"
             >...</el-button>
         </template>
       </el-table-column>
       <el-table-column
-        label="巡回护士"
-        >
+        label="巡回护士">
         <template slot-scope="scope">
-          <span>{{ scope.row.rovNurse }}</span>
+          <span v-for="item in scope.row.rovNurse" :key="item.id">{{ "("+item.name+")" }}</span>
           <el-button
             v-if="scope.row.edit"
             size="mini"
             type="warning"
-            @click="selectDialogVisible = true"
+            @click="handleStaffUpdate(scope.row.rovNurse)"
             >...</el-button>
         </template>
       </el-table-column>
@@ -86,22 +84,23 @@
           <el-button
             size="mini"
             :disabled="!editAvilable"
-            @click="handleEdit(scope.$index, scope.row)">{{scope.row.edit == false?'编辑':'确认'}}</el-button>
+            @click="handleEdit(scope.$index, scope.row)">{{scope.row.edit === false?'编辑':'确认'}}</el-button>
           <el-button
             size="mini"
             type="danger"
+            :disabled="!editAvilable"
             @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <staff-select :isVisible="selectDialogVisible" @dialogClose="selectDialogVisible = false"></staff-select>
+    <staff-select ref="staffSelect" :isVisible="selectDialogVisible" @submit="updateData" @dialogClose="selectDialogVisible = false"></staff-select>
   </div>
 </template>
 
 <script>
 
 import StaffSelect from '@/components/StaffSelect'
-import { getSurgeryList, updateSurgeryList } from '@/api/table'
+import { getSurgeryList, updateSurgeryList, deleteSurgery } from '@/api/list'
 
 export default {
   name: 'info-list-surgery',
@@ -157,6 +156,43 @@ export default {
     handleDelete(index, row) {
       console.log(index, this.tableData)
       this.$emit('deleteRow', { i: index, tableRef: this.tableData })
+
+      this.$confirm('是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.editAvilable = false
+        deleteSurgery({}, row).then(response => {
+          if (/* response.data.code === 40000*/true) {
+            this.$notify.error({
+              title: '删除失败',
+              message: response.data.msg
+            })
+            this.editAvilable = true
+            return
+          } else {
+            this.$notify({
+              title: '删除成功!',
+              type: 'success',
+              duration: 2000
+            })
+            this.tableData.splice(index, 1)
+            this.editAvilable = true
+            return
+          }
+        })
+      }).catch(() => {
+      })
+    },
+    handleStaffUpdate(list) {
+      this.selectDialogVisible = true
+      this.editingList = list
+    },
+    updateData() {
+      this.editingList.splice(0)
+      Array.prototype.push.apply(this.editingList, this.$refs.staffSelect.formData.selectedStaffIndex)
+      this.selectDialogVisible = false
     },
     dialogConfirm() {
       this.infoSelectVisible = false
@@ -170,8 +206,9 @@ export default {
       infoSelectVisible: false,
       listLoading: false,
       editAvilable: true,
+      selectDialogVisible: false,
       tableData: [],
-      selectDialogVisible: false
+      editingList: []
     }
   }
 

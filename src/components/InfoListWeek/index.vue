@@ -7,23 +7,15 @@
       v-loading.body="listLoading" 
       element-loading-text="Loading">
       <el-table-column
-        label="人员"
-        >
+        label="人员">
         <template slot-scope="scope">
           <span style="margin-left: 10px">{{ scope.row.name }}</span>
-          <el-button
-            v-if="scope.row.edit"
-            size="mini"
-            type="warning"
-            @click="selectDialogVisible = true"
-            >...</el-button>
         </template>
       </el-table-column>
       <el-table-column
         v-for="index in [1,2,3,4,5,6,7]" 
         :key="index.id"
-        :label="'W'+index"
-        >
+        :label="'W'+index">
         <template slot-scope="scope">
           <div v-if="scope.row.edit">
             <el-checkbox v-model="scope.row.arrangements[index-1].idle">空闲</el-checkbox>
@@ -45,10 +37,12 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">{{scope.row.edit == false?'编辑':'确认'}}</el-button>
+            :disabled="!editAvilable"
+            @click="handleEdit(scope.$index, scope.row)">{{scope.row.edit === false?'编辑':'确认'}}</el-button>
           <el-button
             size="mini"
             type="danger"
+            :disabled="!editAvilable"
             @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -60,7 +54,7 @@
 <script>
 import InfoSelectWeek from '@/components/InfoSelectWeek'
 import StaffSelect from '@/components/StaffSelect'
-import { getWeekList } from '@/api/table'
+import { getWeekList, updateWeekList, deleteWeekArrangement } from '@/api/list'
 
 export default {
   name: 'info-list-week',
@@ -82,11 +76,64 @@ export default {
       console.log(index, row)
       // this.$emit('editRow', index, this.tableData)
       // this.infoSelectVisible = true
+      if (row.edit === false) {
+        row.edit = !row.edit
+        return
+      }
+
+      this.editAvilable = false
+      updateWeekList({}, row).then(response => {
+        if (/* response.data.code === 40000*/true) {
+          this.$notify.error({
+            title: '更新失败',
+            message: response.data.msg
+          })
+          this.editAvilable = true
+          return
+        } else {
+          this.$notify({
+            title: '更新成功',
+            message: response.data.msg,
+            type: 'success',
+            duration: 2000
+          })
+          this.editAvilable = true
+          return
+        }
+      })
       row.edit = !row.edit
     },
     handleDelete(index, row) {
       console.log(index, this.tableData)
       this.$emit('deleteRow', { i: index, tableRef: this.tableData })
+
+      this.$confirm('是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.editAvilable = false
+        deleteWeekArrangement({}, row).then(response => {
+          if (/* response.data.code === 40000*/true) {
+            this.$notify.error({
+              title: '删除失败',
+              message: response.data.msg
+            })
+            this.editAvilable = true
+            return
+          } else {
+            this.$notify({
+              title: '删除成功!',
+              type: 'success',
+              duration: 2000
+            })
+            this.tableData.splice(index, 1)
+            this.editAvilable = true
+            return
+          }
+        })
+      }).catch(() => {
+      })
     },
     dialogConfirm() {
       this.infoSelectVisible = false
@@ -110,6 +157,7 @@ export default {
       infoSelectVisible: false,
       selectDialogVisible: false,
       listLoading: false,
+      editAvilable: true,
       tableData: []
     }
   }
