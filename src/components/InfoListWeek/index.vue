@@ -1,6 +1,13 @@
 <template>
   <div>
-    <info-select-week :isVisible="infoSelectVisible" @confirm="dialogConfirm" @cancel="dialogCancel"></info-select-week>
+    <el-date-picker
+      v-model="currentDateObject"
+      type="week"
+      placeholder="选择周">
+    </el-date-picker>
+    <el-button type="success" icon="el-icon-circle-plus">添加一个新的周排班（白班）</el-button>
+    <el-button type="primary" icon="el-icon-upload">导入</el-button>
+    <el-button type="primary" icon="el-icon-download">导出</el-button>
     <el-table
       :data="tableData"
       style="width: 100%"
@@ -19,9 +26,9 @@
         <template slot-scope="scope">
           <div v-if="scope.row.edit">
             <el-checkbox v-model="scope.row.arrangements[index-1].idle">空闲</el-checkbox>
-            <div>
-              <el-input-number size="mini" v-model="scope.row.arrangements[index-1].start" :min="0" :max="23" :disabled="scope.row.arrangements[index-1].idle"></el-input-number>
-              <el-input-number size="mini" v-model="scope.row.arrangements[index-1].end"   :min="0" :max="23" :disabled="scope.row.arrangements[index-1].idle"></el-input-number>
+            <div v-if="!scope.row.arrangements[index-1].idle">
+              <el-input-number size="mini" v-model="scope.row.arrangements[index-1].start" :min="0" :max="23"></el-input-number>
+              <el-input-number size="mini" v-model="scope.row.arrangements[index-1].end"   :min="0" :max="23"></el-input-number>
             </div>
           </div>
           <div v-else>
@@ -55,6 +62,7 @@
 import InfoSelectWeek from '@/components/InfoSelectWeek'
 import StaffSelect from '@/components/StaffSelect'
 import { getWeekList, updateWeekList, deleteWeekArrangement } from '@/api/list'
+import Vue from 'vue'
 
 export default {
   name: 'info-list-week',
@@ -69,18 +77,28 @@ export default {
     }
   },
   created() {
-    this.getInfoListWeek()
+    this.currentDateObject = new Date()
   },
   methods: {
+    getInfoListWeek(params) {
+      this.listLoading = true
+      getWeekList(params).then(response => {
+        this.tableData = response.data.items.map(v => {
+          this.$set(v, 'edit', false)
+          return v
+        })
+        this.listLoading = false
+      })
+    },
     handleEdit(index, row) {
       console.log(index, row)
       // this.$emit('editRow', index, this.tableData)
       // this.infoSelectVisible = true
       if (row.edit === false) {
         row.edit = !row.edit
+        this.oldVal[index] = JSON.parse(JSON.stringify(row))
         return
       }
-
       this.editAvilable = false
       updateWeekList({}, row).then(response => {
         if (/* response.data.code === 40000*/true) {
@@ -88,8 +106,8 @@ export default {
             title: '更新失败',
             message: response.data.msg
           })
-          this.editAvilable = true
-          return
+          this.oldVal[index].edit = false
+          Vue.set(this.tableData, index, this.oldVal[index])
         } else {
           this.$notify({
             title: '更新成功',
@@ -97,9 +115,9 @@ export default {
             type: 'success',
             duration: 2000
           })
-          this.editAvilable = true
-          return
         }
+        this.editAvilable = true
+        return
       })
       row.edit = !row.edit
     },
@@ -140,16 +158,6 @@ export default {
     },
     dialogCancel() {
       this.infoSelectVisible = false
-    },
-    getInfoListWeek() {
-      this.listLoading = true
-      getWeekList().then(response => {
-        this.tableData = response.data.items.map(v => {
-          this.$set(v, 'edit', false)
-          return v
-        })
-        this.listLoading = false
-      })
     }
   },
   data() {
@@ -158,7 +166,20 @@ export default {
       selectDialogVisible: false,
       listLoading: false,
       editAvilable: true,
-      tableData: []
+      tableData: [],
+      oldVal: [],
+      currentDateObject: {}
+    }
+  },
+  watch: {
+    currentDateObject: function(newVal, oldVal) {
+      const params = {
+        y: newVal.getFullYear(),
+        m: newVal.getMonth(),
+        d: newVal.getDate()
+      }
+      console.log(params)
+      this.getInfoListWeek(params)
     }
   }
 

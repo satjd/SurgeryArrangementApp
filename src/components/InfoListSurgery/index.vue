@@ -1,13 +1,19 @@
 <template>
   <div>
+    <el-date-picker
+      v-model="currentDateObject"
+      type="date"
+      placeholder="选择日期">
+    </el-date-picker>
+    <el-button type="primary" icon="el-icon-upload">导入</el-button>
+    <el-button type="primary" icon="el-icon-download">导出</el-button>
     <el-table
       :data="tableData"
       style="width: 100%"
       v-loading.body="listLoading" 
       element-loading-text="Loading">
       <el-table-column
-        label="手术日期"
-        >
+        label="手术日期">
         <template slot-scope="scope">
           <el-date-picker
             v-if="scope.row.edit"
@@ -19,14 +25,11 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="手术时间"
-        >
+        label="手术时间">
         <template slot-scope="scope">
           <el-time-picker
             v-if="scope.row.edit"
             v-model="scope.row.surgeryTime"
-            :picker-options="{
-            }"
             placeholder="任意时间点">
           </el-time-picker>
           <span v-else>{{ scope.row.surgeryTime }}</span>
@@ -101,6 +104,7 @@
 
 import StaffSelect from '@/components/StaffSelect'
 import { getSurgeryList, updateSurgeryList, deleteSurgery } from '@/api/list'
+import Vue from 'vue'
 
 export default {
   name: 'info-list-surgery',
@@ -110,12 +114,12 @@ export default {
   props: {
   },
   created() {
-    this.getInfoListSurgery()
+    this.currentDateObject = new Date()
   },
   methods: {
-    getInfoListSurgery() {
+    getInfoListSurgery(params) {
       this.listLoading = true
-      getSurgeryList().then(response => {
+      getSurgeryList(params).then(response => {
         this.tableData = response.data.items.map(v => {
           this.$set(v, 'edit', false)
           return v
@@ -128,9 +132,9 @@ export default {
       // this.$emit('editRow', index, this.tableData)
       if (row.edit === false) {
         row.edit = !row.edit
+        this.oldVal[index] = JSON.parse(JSON.stringify(row))
         return
       }
-
       this.editAvilable = false
       updateSurgeryList({}, row).then(response => {
         if (/* response.data.code === 40000*/true) {
@@ -138,8 +142,8 @@ export default {
             title: '更新失败',
             message: response.data.msg
           })
-          this.editAvilable = true
-          return
+          this.oldVal[index].edit = false
+          Vue.set(this.tableData, index, this.oldVal[index])
         } else {
           this.$notify({
             title: '更新成功',
@@ -147,9 +151,9 @@ export default {
             type: 'success',
             duration: 2000
           })
-          this.editAvilable = true
-          return
         }
+        this.editAvilable = true
+        return
       })
       row.edit = !row.edit
     },
@@ -208,7 +212,20 @@ export default {
       editAvilable: true,
       selectDialogVisible: false,
       tableData: [],
-      editingList: []
+      oldVal: [],
+      editingList: [],
+      currentDateObject: {}
+    }
+  },
+  watch: {
+    currentDateObject: function(newVal, oldVal) {
+      if (newVal === null) return
+      const params = {
+        y: newVal.getFullYear(),
+        m: newVal.getMonth(),
+        d: newVal.getDate()
+      }
+      this.getInfoListSurgery(params)
     }
   }
 

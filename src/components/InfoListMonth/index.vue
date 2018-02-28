@@ -1,5 +1,13 @@
 <template>
   <div>
+    <el-date-picker
+      v-model="currentDateObject"
+      type="month"
+      placeholder="选择月">
+    </el-date-picker>
+    <el-button type="success" icon="el-icon-circle-plus">添加一个新的月排班（夜班）</el-button>
+    <el-button type="primary" icon="el-icon-upload">导入</el-button>
+    <el-button type="primary" icon="el-icon-download" @click="handleExport">导出</el-button>
     <el-table
       :data="tableData"
       style="width: 100%"
@@ -68,9 +76,11 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import InfoSelectMonth from '@/components/InfoSelectMonth'
 import StaffSelect from '@/components/StaffSelect'
 import { getMonthList, updateMonthList, deleteMonthArrangement } from '@/api/list'
+import { export2Json } from '@/utils/export2File'
 
 export default {
   name: 'info-list-month',
@@ -85,17 +95,27 @@ export default {
     }
   },
   created: function() {
-    this.getInfoListMonth()
+    this.currentDateObject = new Date()
   },
   methods: {
+    getInfoListMonth(params) {
+      this.listLoading = true
+      getMonthList(params).then(response => {
+        this.tableData = response.data.items.map(v => {
+          this.$set(v, 'edit', false)
+          return v
+        })
+        this.listLoading = false
+      })
+    },
     handleEdit(index, row) {
       console.log(index, row)
       // this.$emit('editRow', index, this.tableData)
       // this.editIndex = index
       // this.infoSelectVisible = true
-
       if (row.edit === false) {
         row.edit = !row.edit
+        this.oldVal[index] = JSON.parse(JSON.stringify(row))
         return
       } else {
         this.editAvilable = false
@@ -105,8 +125,8 @@ export default {
               title: '更新失败',
               message: response.data.msg
             })
-            this.editAvilable = true
-            return
+            this.oldVal[index].edit = false
+            Vue.set(this.tableData, index, this.oldVal[index])
           } else {
             this.$notify({
               title: '更新成功',
@@ -114,9 +134,9 @@ export default {
               type: 'success',
               duration: 2000
             })
-            this.editAvilable = true
-            return
           }
+          this.editAvilable = true
+          return
         })
         row.edit = !row.edit
       }
@@ -162,22 +182,24 @@ export default {
       Array.prototype.push.apply(this.editingList, this.$refs.staffSelect.formData.selectedStaffIndex)
       this.selectDialogVisible = false
     },
+    handleExport() {
+      const exportData = {
+        date: this.currentDateObject,
+        tableData: this.tableData
+      }
+
+      const exportFileName = 'month' + '_' +
+                              (this.currentDateObject.getFullYear()) + '_' +
+                              (this.currentDateObject.getMonth() + 1) + '.json'
+
+      export2Json(exportData, exportFileName)
+    },
     dialogConfirm(formData) {
       this.tableData.splice(this.editIndex, 1, formData)
       this.infoSelectVisible = false
     },
     dialogCancel() {
       this.infoSelectVisible = false
-    },
-    getInfoListMonth() {
-      this.listLoading = true
-      getMonthList().then(response => {
-        this.tableData = response.data.items.map(v => {
-          this.$set(v, 'edit', false)
-          return v
-        })
-        this.listLoading = false
-      })
     }
   },
   data() {
@@ -188,9 +210,20 @@ export default {
       editIndex: 0,
       listLoading: false,
       tableData: [],
+      oldVal: [],
+      currentDateObject: new Date(),
       editingList: []
     }
+  },
+  watch: {
+    currentDateObject: function(newVal, oldVal) {
+      if (newVal === null) return
+      const params = {
+        y: newVal.getFullYear(),
+        m: newVal.getMonth()
+      }
+      this.getInfoListMonth(params)
+    }
   }
-
 }
 </script>
