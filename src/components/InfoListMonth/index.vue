@@ -6,7 +6,7 @@
       placeholder="选择月">
     </el-date-picker>
     <el-button type="success" icon="el-icon-circle-plus">添加一个新的月排班（夜班）</el-button>
-    <el-button type="primary" icon="el-icon-upload">导入</el-button>
+    <el-button type="primary" icon="el-icon-upload" @click="fileImportVisible = true">导入</el-button>
     <el-button type="primary" icon="el-icon-download" @click="handleExport">导出</el-button>
     <el-table
       :data="tableData"
@@ -72,6 +72,7 @@
       </el-table-column>
     </el-table>
     <staff-select ref="staffSelect" :isVisible="selectDialogVisible" @submit="updateData" @dialogClose="selectDialogVisible = false"></staff-select>
+    <file-import ref="fileImport" :isVisible="fileImportVisible" fileType="json" @submit="handleImport" @dialogClose="fileImportVisible = false"></file-import>
   </div>
 </template>
 
@@ -79,6 +80,7 @@
 import Vue from 'vue'
 import InfoSelectMonth from '@/components/InfoSelectMonth'
 import StaffSelect from '@/components/StaffSelect'
+import FileImport from '@/components/FileImport'
 import { getMonthList, updateMonthList, deleteMonthArrangement } from '@/api/list'
 import { export2Json } from '@/utils/export2File'
 
@@ -86,7 +88,8 @@ export default {
   name: 'info-list-month',
   components: {
     InfoSelectMonth,
-    StaffSelect
+    StaffSelect,
+    FileImport
   },
   props: {
     isActive: {
@@ -194,18 +197,24 @@ export default {
 
       export2Json(exportData, exportFileName)
     },
-    dialogConfirm(formData) {
-      this.tableData.splice(this.editIndex, 1, formData)
-      this.infoSelectVisible = false
-    },
-    dialogCancel() {
-      this.infoSelectVisible = false
+    handleImport(fileList) {
+      console.log(fileList[0])
+      this.fileImportVisible = false
+      var reader = new FileReader()
+      var obj = {}
+      reader.onloadend = () => {
+        obj = JSON.parse(reader.result)
+        this.currentDateObject = new Date(obj.date)
+        this.tableData = obj.tableData
+      }
+      reader.readAsText(fileList[0])
     }
   },
   data() {
     return {
       infoSelectVisible: false,
       selectDialogVisible: false,
+      fileImportVisible: false,
       editAvilable: true,
       editIndex: 0,
       listLoading: false,
