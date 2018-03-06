@@ -202,10 +202,14 @@ export default {
       this.fileImportVisible = false
       var reader = new FileReader()
       var obj = {}
-      reader.onloadend = () => {
+      reader.onload = () => {
         obj = JSON.parse(reader.result)
         this.currentDateObject = new Date(obj.date)
+        this.noWatch = true
         this.tableData = obj.tableData
+      }
+      reader.onloadend = () => {
+        this.noWatch = false
       }
       reader.readAsText(fileList[0])
     }
@@ -221,12 +225,13 @@ export default {
       tableData: [],
       oldVal: [],
       currentDateObject: new Date(),
-      editingList: []
+      editingList: [],
+      noWatch: false
     }
   },
   watch: {
     currentDateObject: function(newVal, oldVal) {
-      if (newVal === null) return
+      if (newVal === null || this.noWatch) return
       const params = {
         y: newVal.getFullYear(),
         m: newVal.getMonth()
