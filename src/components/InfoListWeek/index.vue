@@ -3,11 +3,12 @@
     <el-date-picker
       v-model="currentDateObject"
       type="week"
-      placeholder="选择周">
+      placeholder="选择周"
+      :picker-options="{firstDayOfWeek:1}">
     </el-date-picker>
     <el-button type="success" icon="el-icon-circle-plus">添加一个新的周排班（白班）</el-button>
-    <el-button type="primary" icon="el-icon-upload">导入</el-button>
-    <el-button type="primary" icon="el-icon-download">导出</el-button>
+    <el-button type="primary" icon="el-icon-upload" @click="fileImportVisible = true">导入</el-button>
+    <el-button type="primary" icon="el-icon-download" @click="handleExport">导出</el-button>
     <el-table
       :data="tableData"
       style="width: 100%"
@@ -55,20 +56,24 @@
       </el-table-column>
     </el-table>
     <staff-select :isVisible="selectDialogVisible" @dialogClose="selectDialogVisible = false"></staff-select>
+    <file-import ref="fileImport" :isVisible="fileImportVisible" fileType="json" @submit="handleImport" @dialogClose="fileImportVisible = false"></file-import>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
 import InfoSelectWeek from '@/components/InfoSelectWeek'
 import StaffSelect from '@/components/StaffSelect'
 import { getWeekList, updateWeekList, deleteWeekArrangement } from '@/api/list'
-import Vue from 'vue'
+import FileImport from '@/components/FileImport'
+import { export2Json } from '@/utils/export2File'
 
 export default {
   name: 'info-list-week',
   components: {
     InfoSelectWeek,
-    StaffSelect
+    StaffSelect,
+    FileImport
   },
   props: {
     isActive: {
@@ -153,6 +158,34 @@ export default {
       }).catch(() => {
       })
     },
+    handleExport() {
+      const exportData = {
+        date: this.currentDateObject,
+        tableData: this.tableData
+      }
+
+      const exportFileName = 'week' + '_' +
+                              (this.currentDateObject.getFullYear()) + '_' +
+                              (this.currentDateObject.getMonth() + 1) + '_' +
+                              (this.currentDateObject.getDate()) + '.json'
+
+      export2Json(exportData, exportFileName)
+    },
+    handleImport(fileList) {
+      this.fileImportVisible = false
+      var reader = new FileReader()
+      var obj = {}
+      reader.onload = () => {
+        obj = JSON.parse(reader.result)
+        this.currentDateObject = new Date(obj.date)
+        this.noWatch = true // change current date object without trigger watch
+        this.tableData = obj.tableData
+      }
+      reader.onloadend = () => {
+        this.noWatch = false
+      }
+      reader.readAsText(fileList[0])
+    },
     dialogConfirm() {
       this.infoSelectVisible = false
     },
@@ -168,11 +201,14 @@ export default {
       editAvilable: true,
       tableData: [],
       oldVal: [],
-      currentDateObject: {}
+      currentDateObject: {},
+      fileImportVisible: false,
+      noWatch: false
     }
   },
   watch: {
     currentDateObject: function(newVal, oldVal) {
+      if (newVal === null || this.noWatch) return
       const params = {
         y: newVal.getFullYear(),
         m: newVal.getMonth(),

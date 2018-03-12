@@ -113,9 +113,6 @@ export default {
     },
     handleEdit(index, row) {
       console.log(index, row)
-      // this.$emit('editRow', index, this.tableData)
-      // this.editIndex = index
-      // this.infoSelectVisible = true
       if (row.edit === false) {
         row.edit = !row.edit
         this.oldVal[index] = JSON.parse(JSON.stringify(row))
@@ -146,8 +143,6 @@ export default {
     },
     handleDelete(index, row) {
       console.log(index, this.tableData)
-      // this.$emit('deleteRow', { i: index, tableRef: this.tableData })
-
       this.$confirm('是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -198,14 +193,13 @@ export default {
       export2Json(exportData, exportFileName)
     },
     handleImport(fileList) {
-      console.log(fileList[0])
       this.fileImportVisible = false
       var reader = new FileReader()
       var obj = {}
       reader.onload = () => {
         obj = JSON.parse(reader.result)
         this.currentDateObject = new Date(obj.date)
-        this.noWatch = true
+        this.noWatch = true // change current date object without trigger watch
         this.tableData = obj.tableData
       }
       reader.onloadend = () => {

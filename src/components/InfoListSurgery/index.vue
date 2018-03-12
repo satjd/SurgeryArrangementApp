@@ -5,8 +5,8 @@
       type="date"
       placeholder="选择日期">
     </el-date-picker>
-    <el-button type="primary" icon="el-icon-upload">导入</el-button>
-    <el-button type="primary" icon="el-icon-download">导出</el-button>
+    <el-button type="primary" icon="el-icon-upload" @click="fileImportVisible = true">导入</el-button>
+    <el-button type="primary" icon="el-icon-download" @click="handleExport">导出</el-button>
     <el-table
       :data="tableData"
       style="width: 100%"
@@ -97,6 +97,7 @@
       </el-table-column>
     </el-table>
     <staff-select ref="staffSelect" :isVisible="selectDialogVisible" @submit="updateData" @dialogClose="selectDialogVisible = false"></staff-select>
+    <file-import ref="fileImport" :isVisible="fileImportVisible" fileType="json" @submit="handleImport" @dialogClose="fileImportVisible = false"></file-import>
   </div>
 </template>
 
@@ -105,11 +106,14 @@
 import StaffSelect from '@/components/StaffSelect'
 import { getSurgeryList, updateSurgeryList, deleteSurgery } from '@/api/list'
 import Vue from 'vue'
+import FileImport from '@/components/FileImport'
+import { export2Json } from '@/utils/export2File'
 
 export default {
   name: 'info-list-surgery',
   components: {
-    StaffSelect
+    StaffSelect,
+    FileImport
   },
   props: {
   },
@@ -193,6 +197,34 @@ export default {
       this.selectDialogVisible = true
       this.editingList = list
     },
+    handleExport() {
+      const exportData = {
+        date: this.currentDateObject,
+        tableData: this.tableData
+      }
+
+      const exportFileName = 'day' + '_' +
+                              (this.currentDateObject.getFullYear()) + '_' +
+                              (this.currentDateObject.getMonth() + 1) + '_' +
+                              (this.currentDateObject.getDate()) + '.json'
+
+      export2Json(exportData, exportFileName)
+    },
+    handleImport(fileList) {
+      this.fileImportVisible = false
+      var reader = new FileReader()
+      var obj = {}
+      reader.onload = () => {
+        obj = JSON.parse(reader.result)
+        this.currentDateObject = new Date(obj.date)
+        this.noWatch = true // change current date object without trigger watch
+        this.tableData = obj.tableData
+      }
+      reader.onloadend = () => {
+        this.noWatch = false
+      }
+      reader.readAsText(fileList[0])
+    },
     updateData() {
       this.editingList.splice(0)
       Array.prototype.push.apply(this.editingList, this.$refs.staffSelect.formData.selectedStaffIndex)
@@ -214,12 +246,14 @@ export default {
       tableData: [],
       oldVal: [],
       editingList: [],
-      currentDateObject: {}
+      currentDateObject: {},
+      fileImportVisible: false,
+      noWatch: false
     }
   },
   watch: {
     currentDateObject: function(newVal, oldVal) {
-      if (newVal === null) return
+      if (newVal === null || this.noWatch) return
       const params = {
         y: newVal.getFullYear(),
         m: newVal.getMonth(),
