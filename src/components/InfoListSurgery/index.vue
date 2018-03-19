@@ -141,25 +141,19 @@ export default {
       }
       this.editAvilable = false
       updateSurgeryList({}, row).then(response => {
-        if (/* response.data.code === 40000*/true) {
-          this.$notify.error({
-            title: '更新失败',
-            message: response.data.msg
-          })
-          this.oldVal[index].edit = false
-          Vue.set(this.tableData, index, this.oldVal[index])
-        } else {
-          this.$notify({
-            title: '更新成功',
-            message: response.data.msg,
-            type: 'success',
-            duration: 2000
-          })
-        }
+        this.$notify({
+          title: '更新成功',
+          message: response.data.msg,
+          type: 'success',
+          duration: 2000
+        })
+      }).catch(() => {
+        this.oldVal[index].edit = false
+        Vue.set(this.tableData, index, this.oldVal[index])
+      }).finally(() => {
         this.editAvilable = true
-        return
+        row.edit = !row.edit
       })
-      row.edit = !row.edit
     },
     handleDelete(index, row) {
       console.log(index, this.tableData)
@@ -171,25 +165,9 @@ export default {
         type: 'warning'
       }).then(() => {
         this.editAvilable = false
-        deleteSurgery({}, row).then(response => {
-          if (/* response.data.code === 40000*/true) {
-            this.$notify.error({
-              title: '删除失败',
-              message: response.data.msg
-            })
-            this.editAvilable = true
-            return
-          } else {
-            this.$notify({
-              title: '删除成功!',
-              type: 'success',
-              duration: 2000
-            })
-            this.tableData.splice(index, 1)
-            this.editAvilable = true
-            return
-          }
-        })
+        deleteSurgery({}, { surgeryId: row.surgeryId }).then(response => {
+          this.tableData.splice(index, 1)
+        }).catch(() => {}).finally(() => { this.editAvilable = true })
       }).catch(() => {
       })
     },
@@ -199,7 +177,7 @@ export default {
     },
     handleExport() {
       const exportData = {
-        date: this.currentDateObject,
+        date: this.currentDateObject.getTime(),
         tableData: this.tableData
       }
 

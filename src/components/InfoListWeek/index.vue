@@ -6,7 +6,7 @@
       placeholder="选择周"
       :picker-options="{firstDayOfWeek:1}">
     </el-date-picker>
-    <el-button type="success" icon="el-icon-circle-plus">添加一个新的周排班（白班）</el-button>
+    <el-button type="success" icon="el-icon-circle-plus" @click="handleCreate">添加一个新的周排班（白班）</el-button>
     <el-button type="primary" icon="el-icon-upload" @click="fileImportVisible = true">导入</el-button>
     <el-button type="primary" icon="el-icon-download" @click="handleExport">导出</el-button>
     <el-table
@@ -92,7 +92,26 @@ export default {
           this.$set(v, 'edit', false)
           return v
         })
+      }).catch(() => {
+        this.tableData = []
+      }).finally(() => {
         this.listLoading = false
+      })
+    },
+    handleCreate() {
+      this.editAvilable = false
+      updateWeekList({ create: true }).then(response => {
+        if (!response.data.id) return
+        const newObj = Object.assign({}, this.tableData[0] || {})
+
+        newObj.edit = true
+        newObj.id = response.data.id
+        newObj.name = null
+        this.tableData.push(newObj)
+      }).catch(() => {
+
+      }).finally(() => {
+        this.editAvilable = true
       })
     },
     handleEdit(index, row) {
@@ -106,23 +125,19 @@ export default {
       }
       this.editAvilable = false
       updateWeekList({}, row).then(response => {
-        if (/* response.data.code === 40000*/true) {
-          this.$notify.error({
-            title: '更新失败',
-            message: response.data.msg
-          })
-          this.oldVal[index].edit = false
-          Vue.set(this.tableData, index, this.oldVal[index])
-        } else {
-          this.$notify({
-            title: '更新成功',
-            message: response.data.msg,
-            type: 'success',
-            duration: 2000
-          })
-        }
+        this.$notify({
+          title: '更新成功',
+          message: response.data.msg,
+          type: 'success',
+          duration: 2000
+        })
         this.editAvilable = true
         return
+      }).catch(() => {
+        this.oldVal[index].edit = false
+        Vue.set(this.tableData, index, this.oldVal[index])
+      }).finally(() => {
+        this.editAvilable = true
       })
       row.edit = !row.edit
     },
@@ -136,31 +151,14 @@ export default {
         type: 'warning'
       }).then(() => {
         this.editAvilable = false
-        deleteWeekArrangement({}, row).then(response => {
-          if (/* response.data.code === 40000*/true) {
-            this.$notify.error({
-              title: '删除失败',
-              message: response.data.msg
-            })
-            this.editAvilable = true
-            return
-          } else {
-            this.$notify({
-              title: '删除成功!',
-              type: 'success',
-              duration: 2000
-            })
-            this.tableData.splice(index, 1)
-            this.editAvilable = true
-            return
-          }
-        })
-      }).catch(() => {
+        deleteWeekArrangement({}, { id: row.id }).then(response => {
+          this.tableData.splice(index, 1)
+        }).catch(() => {}).finally(() => { this.editAvilable = true })
       })
     },
     handleExport() {
       const exportData = {
-        date: this.currentDateObject,
+        date: this.currentDateObject.getTime(),
         tableData: this.tableData
       }
 

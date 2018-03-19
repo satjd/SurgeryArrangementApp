@@ -17,6 +17,16 @@ export function getMonthList(params) {
   })
 }
 
+// sync month arrangement with server
+export function syncMonthList(params, data) {
+  return request({
+    url: '/list/month',
+    method: 'post',
+    params,
+    data
+  })
+}
+
 // Update month arrangements
 export function updateMonthList(params, data) {
   return request({
@@ -27,6 +37,7 @@ export function updateMonthList(params, data) {
   })
 }
 
+// Delete a month arrangement
 export function deleteMonthArrangement(params, data) {
   return request({
     url: '/list/month',
@@ -42,6 +53,16 @@ export function getWeekList(params) {
     url: '/list/week',
     method: 'get',
     params
+  })
+}
+
+// sync week arrangement with server
+export function syncWeekList(params, data) {
+  return request({
+    url: '/list/week',
+    method: 'post',
+    params,
+    data
   })
 }
 
@@ -71,6 +92,16 @@ export function getSurgeryList(params) {
     url: '/list/surgery',
     method: 'get',
     params
+  })
+}
+
+// sync surgery arrangement
+export function syncSurgeryList(params, data) {
+  return request({
+    url: '/list/surgery',
+    method: 'post',
+    params,
+    data
   })
 }
 
