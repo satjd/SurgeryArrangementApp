@@ -27,16 +27,16 @@ service.interceptors.response.use(
   /**
   * throw exception when code is not 20000
   */
-    const meta = response.data.meta
-    if (!meta || meta.error) {
+    const resbody = response.data
+    if (resbody.errcode) {
       Message({
-        message: meta.msg || 'error',
+        message: 'CODE ' + resbody.errcode + ': ' + resbody.errmsg || 'error',
         type: 'error',
         duration: 5 * 1000
       })
 
       // 50008:invalid token 50012:login with other tokens  50014:token timeout
-      if (meta.error === 50008 || meta.error === 50012 || meta.error === 50014) {
+      if (resbody.errcode === 50008 || resbody.errcode === 50012 || resbody.errcode === 50014) {
         MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
           confirmButtonText: '重新登录',
           cancelButtonText: '取消',
@@ -50,7 +50,7 @@ service.interceptors.response.use(
       return Promise.reject('error')
     } else {
       Message({
-        message: meta.msg || 'success',
+        message: 'success',
         type: 'success',
         duration: 1 * 1000
       })

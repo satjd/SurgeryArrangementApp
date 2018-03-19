@@ -90,7 +90,7 @@ export default {
     getStaffList() {
       this.listLoading = true
       getStaff().then(response => {
-        this.staffList = response.data.items.filter(this.staffFilter)
+        this.staffList = response.filter(this.staffFilter)
         this.listLoading = false
       })
     },
