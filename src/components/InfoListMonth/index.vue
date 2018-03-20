@@ -104,7 +104,7 @@ export default {
     getInfoListMonth(params) {
       this.listLoading = true
       getMonthList(params).then(response => {
-        this.tableData = response.data.items.map(v => {
+        this.tableData = response.map(v => {
           this.$set(v, 'edit', false)
           return v
         })
@@ -117,7 +117,7 @@ export default {
     handleCreate() {
       this.editAvilable = false
       updateMonthList({ create: true }).then(response => {
-        if (!response.data.id) return
+        if (!response.newId) return
         const newObj = Object.assign({}, this.tableData[0] || {})
 
         for (const prop in newObj) {
@@ -125,7 +125,7 @@ export default {
         }
 
         newObj.edit = true
-        newObj.id = response.data.id
+        newObj.id = response.newId
         console.log(newObj)
         console.log(this.tableData[0])
         this.tableData.push(newObj)
@@ -152,6 +152,7 @@ export default {
           })
           return
         }).catch(() => {
+          if (!this.oldVal[index]) return
           this.oldVal[index].edit = false
           Vue.set(this.tableData, index, this.oldVal[index])
         }).finally(() => {
@@ -168,7 +169,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.editAvilable = false
-        deleteMonthArrangement({}, { id: row.id }).then(response => {
+        deleteMonthArrangement({ id: row.id }, {}).then(response => {
           this.tableData.splice(index, 1)
         }).catch(() => {}).finally(() => { this.editAvilable = true })
       })

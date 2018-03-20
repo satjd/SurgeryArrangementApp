@@ -91,6 +91,7 @@ export default {
       this.listLoading = true
       getStaff().then(response => {
         this.staffList = response.filter(this.staffFilter)
+      }).finally(() => {
         this.listLoading = false
       })
     },

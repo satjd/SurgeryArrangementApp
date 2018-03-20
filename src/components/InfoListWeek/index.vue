@@ -88,7 +88,7 @@ export default {
     getInfoListWeek(params) {
       this.listLoading = true
       getWeekList(params).then(response => {
-        this.tableData = response.data.items.map(v => {
+        this.tableData = response.map(v => {
           this.$set(v, 'edit', false)
           return v
         })
@@ -101,11 +101,11 @@ export default {
     handleCreate() {
       this.editAvilable = false
       updateWeekList({ create: true }).then(response => {
-        if (!response.data.id) return
+        if (!response.newId) return
         const newObj = Object.assign({}, this.tableData[0] || {})
 
         newObj.edit = true
-        newObj.id = response.data.id
+        newObj.id = response.newId
         newObj.name = null
         this.tableData.push(newObj)
       }).catch(() => {
@@ -124,7 +124,7 @@ export default {
         return
       }
       this.editAvilable = false
-      updateWeekList({}, row).then(response => {
+      updateWeekList({ create: false }, row).then(response => {
         this.$notify({
           title: '更新成功',
           message: response.data.msg,
@@ -134,6 +134,7 @@ export default {
         this.editAvilable = true
         return
       }).catch(() => {
+        if (!this.oldVal[index]) return
         this.oldVal[index].edit = false
         Vue.set(this.tableData, index, this.oldVal[index])
       }).finally(() => {
@@ -151,7 +152,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.editAvilable = false
-        deleteWeekArrangement({}, { id: row.id }).then(response => {
+        deleteWeekArrangement({ id: row.id }, {}).then(response => {
           this.tableData.splice(index, 1)
         }).catch(() => {}).finally(() => { this.editAvilable = true })
       })
