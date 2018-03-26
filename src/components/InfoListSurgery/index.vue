@@ -124,7 +124,7 @@ export default {
     getInfoListSurgery(params) {
       this.listLoading = true
       getSurgeryList(params).then(response => {
-        this.tableData = response.data.items.map(v => {
+        this.tableData = response.map(v => {
           this.$set(v, 'edit', false)
           return v
         })
@@ -140,14 +140,15 @@ export default {
         return
       }
       this.editAvilable = false
-      updateSurgeryList({}, row).then(response => {
+      updateSurgeryList({ create: false }, row).then(response => {
         this.$notify({
           title: '更新成功',
-          message: response.data.msg,
+          message: response || '',
           type: 'success',
           duration: 2000
         })
       }).catch(() => {
+        if (!this.oldVal[index].edit) return
         this.oldVal[index].edit = false
         Vue.set(this.tableData, index, this.oldVal[index])
       }).finally(() => {
@@ -165,7 +166,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.editAvilable = false
-        deleteSurgery({}, { surgeryId: row.surgeryId }).then(response => {
+        deleteSurgery({ surgeryId: row.surgeryId }).then(response => {
           this.tableData.splice(index, 1)
         }).catch(() => {}).finally(() => { this.editAvilable = true })
       }).catch(() => {

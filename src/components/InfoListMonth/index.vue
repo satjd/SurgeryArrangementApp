@@ -120,14 +120,12 @@ export default {
         if (!response.newId) return
         const newObj = Object.assign({}, this.tableData[0] || {})
 
-        for (const prop in newObj) {
-          newObj[prop] = null
-        }
-
         newObj.edit = true
         newObj.id = response.newId
-        console.log(newObj)
-        console.log(this.tableData[0])
+        newObj.date = new Date()
+        newObj.night = []
+        newObj.nightStandby = []
+
         this.tableData.push(newObj)
       }).catch(() => {
 
@@ -146,7 +144,7 @@ export default {
         updateMonthList({ create: false }, row).then(response => {
           this.$notify({
             title: '更新成功',
-            message: response.data.msg,
+            message: response || '',
             type: 'success',
             duration: 2000
           })

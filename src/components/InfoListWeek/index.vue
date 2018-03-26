@@ -127,7 +127,7 @@ export default {
       updateWeekList({ create: false }, row).then(response => {
         this.$notify({
           title: '更新成功',
-          message: response.data.msg,
+          message: response || '',
           type: 'success',
           duration: 2000
         })

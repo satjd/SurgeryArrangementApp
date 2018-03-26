@@ -12,7 +12,7 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(config => {
   if (store.getters.token) {
-    config.headers['X-Token'] = getToken() // set token of requests
+    // config.headers['X-Token'] = getToken() // set token of requests
   }
   return config
 }, error => {
@@ -54,7 +54,7 @@ service.interceptors.response.use(
         type: 'success',
         duration: 1 * 1000
       })
-      return response.data
+      return resbody
     }
   },
   error => {
