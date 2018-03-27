@@ -17,7 +17,7 @@
       <el-table-column
         label="人员">
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.name }}</span>
+          <span style="margin-left: 10px">{{ scope.row.staffThisWeekday.name }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -26,17 +26,17 @@
         :label="'W'+index">
         <template slot-scope="scope">
           <div v-if="scope.row.edit">
-            <el-checkbox v-model="scope.row.arrangements[index-1].idle">空闲</el-checkbox>
-            <div v-if="!scope.row.arrangements[index-1].idle">
-              <el-input-number size="mini" v-model="scope.row.arrangements[index-1].start" :min="0" :max="23"></el-input-number>
-              <el-input-number size="mini" v-model="scope.row.arrangements[index-1].end"   :min="0" :max="23"></el-input-number>
+            <el-checkbox v-model="scope.row.todayDescriptors[index-1].idle">空闲</el-checkbox>
+            <div v-if="!scope.row.todayDescriptors[index-1].idle">
+              <el-input-number size="mini" v-model="scope.row.todayDescriptors[index-1].start" :min="0" :max="23"></el-input-number>
+              <el-input-number size="mini" v-model="scope.row.todayDescriptors[index-1].end"   :min="0" :max="23"></el-input-number>
             </div>
           </div>
           <div v-else>
             <i class="el-icon-time"></i>
-            <span style="margin-left: 10px" v-if="scope.row.arrangements[index-1].idle === false">
-              {{ scope.row.arrangements[index-1].start + '至' + scope.row.arrangements[index-1].end 
-              + ((scope.row.arrangements[index-1].start >= scope.row.arrangements[index-1].end)?"\'":"")}}
+            <span style="margin-left: 10px" v-if="scope.row.todayDescriptors[index-1].idle === false">
+              {{ scope.row.todayDescriptors[index-1].start + '至' + scope.row.todayDescriptors[index-1].end 
+              + ((scope.row.todayDescriptors[index-1].start >= scope.row.todayDescriptors[index-1].end)?"\'":"")}}
             </span>
           </div>    
         </template>
@@ -105,7 +105,7 @@ export default {
         const newObj = Object.assign({}, this.tableData[0] || {})
 
         newObj.edit = true
-        newObj.id = response.newId
+        newObj.weekArrangementId = response.newId
         newObj.name = null
         this.tableData.push(newObj)
       }).catch(() => {
@@ -152,7 +152,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.editAvilable = false
-        deleteWeekArrangement({ id: row.id }, {}).then(response => {
+        deleteWeekArrangement({ id: row.weekArrangementId }, {}).then(response => {
           this.tableData.splice(index, 1)
         }).catch(() => {}).finally(() => { this.editAvilable = true })
       })

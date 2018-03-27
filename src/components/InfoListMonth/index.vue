@@ -24,7 +24,7 @@
       <el-table-column
         label="值班人员">
         <template slot-scope="scope">
-          <el-popover v-for="item in scope.row.night" :key="item.id" trigger="hover" placement="top">
+          <el-popover v-for="item in scope.row.night" :key="item.sid" trigger="hover" placement="top">
             <p>姓名: {{ item.name }}</p>
             <p>资历: {{ item.exp }}</p>
             <span slot="reference" class="name-wrapper">
@@ -42,7 +42,7 @@
       <el-table-column
         label="候补人员">
         <template slot-scope="scope">
-          <el-popover v-for="item in scope.row.nightStandby" :key="item.id" trigger="hover" placement="top">
+          <el-popover v-for="item in scope.row.nightStandby" :key="item.sid" trigger="hover" placement="top">
             <p>姓名: {{ item.name }}</p>
             <p>资历:{{item.exp}}</p>
             <span slot="reference" class="name-wrapper">
@@ -121,7 +121,7 @@ export default {
         const newObj = Object.assign({}, this.tableData[0] || {})
 
         newObj.edit = true
-        newObj.id = response.newId
+        newObj.monthArrangementId = response.newId
         newObj.date = new Date()
         newObj.night = []
         newObj.nightStandby = []
@@ -167,7 +167,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.editAvilable = false
-        deleteMonthArrangement({ id: row.id }, {}).then(response => {
+        deleteMonthArrangement({ id: row.monthArrangementId }, {}).then(response => {
           this.tableData.splice(index, 1)
         }).catch(() => {}).finally(() => { this.editAvilable = true })
       })
