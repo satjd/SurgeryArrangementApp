@@ -17,7 +17,15 @@
       <el-table-column
         label="人员">
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.staffThisWeekday.name }}</span>
+          <div>
+            <span style="margin-left: 10px">{{ scope.row.staffThisWeekday ? scope.row.staffThisWeekday.name : '' }}</span>
+            <el-button
+            v-if="scope.row.edit"
+            size="mini"
+            type="warning"
+            @click="handleStaffUpdate(scope.$index)"
+            >...</el-button>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
@@ -55,7 +63,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <staff-select :isVisible="selectDialogVisible" @dialogClose="selectDialogVisible = false"></staff-select>
+    <staff-select ref="staffSelect" :isVisible="selectDialogVisible" @submit="updateData" @dialogClose="selectDialogVisible = false"></staff-select>
     <file-import ref="fileImport" :isVisible="fileImportVisible" fileType="json" @submit="handleImport" @dialogClose="fileImportVisible = false"></file-import>
   </div>
 </template>
@@ -90,6 +98,19 @@ export default {
       getWeekList(params).then(response => {
         this.tableData = response.map(v => {
           this.$set(v, 'edit', false)
+          for (let i = 1; i <= 7; i++) {
+            if (!v.todayDescriptors[i - 1]) {
+              v.todayDescriptors[i - 1] = {
+                key: {
+                  weekArrangementId: response.newId,
+                  weekDay: i
+                },
+                idle: true,
+                start: 0,
+                end: 0
+              }
+            }
+          }
           return v
         })
       }).catch(() => {
@@ -102,11 +123,25 @@ export default {
       this.editAvilable = false
       updateWeekList({ create: true }).then(response => {
         if (!response.newId) return
-        const newObj = Object.assign({}, this.tableData[0] || {})
+        const newObj = {}
 
         newObj.edit = true
         newObj.weekArrangementId = response.newId
-        newObj.name = null
+        newObj.todayDescriptors = []
+        for (let i = 1; i <= 7; i++) {
+          if (!newObj.todayDescriptors[i - 1]) {
+            newObj.todayDescriptors[i - 1] = {
+              key: {
+                weekArrangementId: response.newId,
+                weekDay: i
+              },
+              idle: true,
+              start: 0,
+              end: 0
+            }
+          }
+        }
+        console.log(newObj)
         this.tableData.push(newObj)
       }).catch(() => {
 
@@ -157,6 +192,14 @@ export default {
         }).catch(() => {}).finally(() => { this.editAvilable = true })
       })
     },
+    handleStaffUpdate(editingArrangementIndex) {
+      this.selectDialogVisible = true
+      this.editingArrangementIndex = editingArrangementIndex
+    },
+    updateData() {
+      this.tableData[this.editingArrangementIndex].staffThisWeekday = Object.assign({}, this.$refs.staffSelect.formData.selectedStaffIndex[0] || this.tableData[this.editingArrangementIndex])
+      this.selectDialogVisible = false
+    },
     handleExport() {
       const exportData = {
         date: this.currentDateObject.getTime(),
@@ -201,6 +244,7 @@ export default {
       tableData: [],
       oldVal: [],
       currentDateObject: {},
+      editingArrangementIndex: 0,
       fileImportVisible: false,
       noWatch: false
     }
